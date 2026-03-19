@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Networking Platform</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-info: #e6f1fb;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --text-info: #185fa5;
+    --border: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --bg-info: #0c2a45;
+      --text-primary: #e8e6dc;
+      --text-secondary: #a0a09a;
+      --text-tertiary: #68675f;
+      --text-info: #85b7eb;
+      --border: rgba(255,255,255,0.1);
+      --border-secondary: rgba(255,255,255,0.18);
+    }
+  }
+  body {
+    font-family: var(--font);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 32px 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+
+  .tab-row {
+    display: flex;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 0;
+  }
+  .ttab {
+    flex: 1;
+    max-width: 180px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    background: none;
+    color: var(--text-secondary);
+    transition: all .15s;
+    font-family: var(--font);
+    margin-bottom: -0.5px;
+  }
+  .ttab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
+    background: var(--bg-primary);
+  }
+
+  .root {
+    display: flex;
+    gap: 0;
+    border: 0.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+    min-height: 520px;
+  }
+  .sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    border-right: 0.5px solid var(--border);
+    background: var(--bg-secondary);
+    padding: 8px;
+  }
+  .sitem {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: background .12s;
+    border: 0.5px solid transparent;
+  }
+  .sitem:hover { background: var(--bg-primary); }
+  .sitem.active {
+    background: var(--bg-primary);
+    border-color: var(--border-secondary);
+  }
+  .snum {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+    flex-shrink: 0;
+    width: 16px;
+  }
+  .sname {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .ssub {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+    line-height: 1.3;
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 20px;
+    background: var(--bg-primary);
+    overflow-y: auto;
+  }
+  .step-head {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .step-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .step-num-big {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .step-name-big {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .flag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .flag {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 640px) {
+    .sections { grid-template-columns: 1fr; }
+    .root { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 0.5px solid var(--border); }
+  }
+  .sec {
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+  }
+  .sec-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    padding-bottom: 7px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .ci {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin-bottom: 8px;
+  }
+  .ci:last-child { margin-bottom: 0; }
+  .cdot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .ctext {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .ctext b {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+</style>
+</head>
+<body>
+
+<h1>Event Networking Platform</h1>
+<p class="subtitle">Virtual Event Networking Platform — detailed considerations for every flow step</p>
+
+<div class="tab-row">
+  <button class="ttab active" onclick="switchJourney('org', this)">Event Organizer</button>
+  <button class="ttab" onclick="switchJourney('att', this)">Attendee</button>
+  <button class="ttab" onclick="switchJourney('spo', this)">Sponsor</button>
+</div>
+
+<div class="root">
+  <div class="sidebar" id="step-list"></div>
+  <div class="main" id="main-panel"></div>
+</div>
+
+<script>
+const journeys = {
+  org: {
+    color: '#7F77DD', bg: '#EEEDFE', textColor: '#3C3489',
+    steps: [
+      {
+        num:'01', name:'Create event', sub:'Setup wizard',
+        desc:'The organizer fills in all foundational event metadata through a multi-step wizard. This is the first record in the system — every downstream feature (registrations, matchmaking, sponsor profiles, networking map) is scoped to this event entity.',
+        ux:[
+          {t:'Wizard vs single form', b:'Break setup into logical stages (basics → agenda → tickets → sponsors) so organizers are not overwhelmed. Show a completion bar so they know how much is left.'},
+          {t:'Draft & publish states', b:'Organizers need to save progress and preview the event page before it goes live. A "Draft" state prevents premature attendee access.'},
+          {t:'Template support', b:'Repeat organizers should be able to clone a previous event as a template. Reduces setup time significantly for recurring events.'},
+        ],
+        tech:[
+          {t:'Event schema design', b:'Core entity: event_id, name, description, start/end datetime, timezone, location (lat/long + address), virtual_link, status (draft/live/ended). Timezone handling is critical for global events.'},
+          {t:'Agenda data model', b:'Agenda items should be a child table (event_id FK, title, speaker, start_time, end_time, room/track). This powers the schedule view and the post-session networking bridge feature.'},
+          {t:'Ticket types', b:'Support multiple ticket types per event (General, VIP, Speaker, Sponsor Rep) each with different price, capacity cap, and permission sets that unlock different platform features.'},
+        ],
+        biz:[
+          {t:'Onboarding friction', b:'The easier setup is, the faster organizers activate. Every extra required field in the wizard costs conversion. Only collect what is strictly needed at creation — the rest can be filled in later.'},
+          {t:'SaaS tier gating', b:'Feature limits (max attendees, number of sponsors, analytics depth) should be visible during setup so organizers upgrade before hitting walls mid-event.'},
+          {t:'Event URL & branding', b:'Give each event a clean vanity URL (platform.com/events/your-event-name) and allow logo/color customization. This is a core selling point for premium tiers.'},
+        ],
+        flags:['Critical path','First impression','Blocks everything downstream']
+      },
+      {
+        num:'02', name:'Set up registration', sub:'Tickets & data fields',
+        desc:'The organizer configures the registration form and ticket purchase flow. This step determines what attendee data is captured, which directly powers the quality of AI matchmaking later. Poor data collection here degrades the entire networking experience.',
+        ux:[
+          {t:'Field builder', b:'Organizers need a drag-and-drop field builder: standard fields (name, company, role) plus custom fields specific to their event (e.g. "What are you looking to invest in?"). Custom fields feed directly into matchmaking signals.'},
+          {t:'Mandatory vs optional', b:'Clearly distinguish required vs optional fields. Mandatory fields improve matchmaking quality but increase registration drop-off. Offer a "complete your profile" nudge post-purchase rather than blocking checkout.'},
+          {t:'Confirmation flow', b:'After purchase, attendees should receive: a confirmation email, a receipt, a link to complete their profile, and a calendar invite. Each touchpoint increases profile completion rates.'},
+        ],
+        tech:[
+          {t:'Payment processing', b:'Integrate Stripe or similar for secure card handling. Support free tickets (no payment), paid tickets, and promo codes. Store only a payment_intent_id — never raw card data. Apply 3–5% platform fee at checkout.'},
+          {t:'Data schema flexibility', b:'Custom fields need a JSON column (or EAV table) on the attendee_profile table so organizers can define arbitrary fields without schema migrations. Fields must be indexable for matchmaking queries.'},
+          {t:'Webhook on registration', b:'Fire a webhook event on every new registration so organizers can push data to their CRM, email tool, or Slack in real time. This is a top enterprise request.'},
+        ],
+        biz:[
+          {t:'3–5% ticket fee', b:'This is a core revenue line. Ensure the fee is transparent at checkout. Fee waiver is a compelling enterprise upsell.'},
+          {t:'Conversion tracking', b:'Track registration funnel: page views → checkout started → payment completed → profile completed. Drop-off at each stage points to specific friction to fix.'},
+          {t:'GDPR & data consent', b:'Registration must include explicit consent for data processing, networking features (profile visibility), and optional marketing. Failing this blocks the platform from European markets.'},
+        ],
+        flags:['Revenue critical','Data quality gate','GDPR required']
+      },
+      {
+        num:'03', name:'Manage sponsors', sub:'Profiles & visibility tiers',
+        desc:'Organizers onboard sponsors and configure their tier of visibility. Sponsor quality and placement directly impacts attendee trust in the platform. This step is also a significant revenue driver through premium placement upsells.',
+        ux:[
+          {t:'Sponsor invite flow', b:'Organizers should be able to send an invite link to sponsors who self-complete their profile. Reduces organizer admin burden and gives sponsors ownership of their brand presence.'},
+          {t:'Visibility tier preview', b:'Show organizers a live preview of what each sponsor tier looks like on the networking map, AI feed, and leaderboard. Make the value of upgrading immediately visible.'},
+          {t:'Rep management', b:'Sponsors need to add multiple attending reps, each with their own profile and meeting availability. Reps are the real humans attendees connect with.'},
+        ],
+        tech:[
+          {t:'Sponsor entity model', b:'sponsor_id, event_id FK, company name, logo URL, description, tier (standard/premium/enterprise), rep_ids[], product_tags[]. Tier field gates which surfaces the sponsor appears on.'},
+          {t:'Priority ranking algorithm', b:'Premium sponsors need weighted ranking in the AI recommendation feed. Build a sponsor_boost_score that multiplies their appearance probability. Cap boosts so organic recommendations stay credible.'},
+          {t:'Lead capture webhook', b:'Every attendee interaction with a sponsor (profile view, connection, message, meeting) must fire an event to a sponsor-side webhook.'},
+        ],
+        biz:[
+          {t:'Sponsor revenue model', b:'Define clear tier benefits: Standard (profile listing), Premium (map priority + AI boost), Enterprise (banner placement + lead export + dedicated rep pages).'},
+          {t:'Sponsor satisfaction = renewal', b:'If sponsors see poor ROI, they do not renew. Build a sponsor ROI dashboard that makes their investment measurable — meetings held per £ spent.'},
+          {t:'Conflict of interest policy', b:'Organizers should be able to restrict sponsor category conflicts (e.g. two rival VCs at the same event).'},
+        ],
+        flags:['High-margin revenue','Sponsor retention key','Credibility risk if abused']
+      },
+      {
+        num:'04', name:'Monitor live activity', sub:'Real-time dashboard',
+        desc:'During the event the organizer watches a live dashboard showing all networking activity. This is the control room view — it lets organizers spot low engagement early, identify isolated attendees, and intervene with promo credits or nudges.',
+        ux:[
+          {t:'At-a-glance KPIs', b:'Top row: total connections today, meetings scheduled, active messages, credit transactions. These four numbers tell the organizer if the event is working without needing to dig deeper.'},
+          {t:'Attendee isolation alerts', b:'Flag attendees with zero connections after N hours. Organizers can push a credit gift or a suggested connection. This directly improves attendee satisfaction scores.'},
+          {t:'Sponsor activity feed', b:'Show which sponsors are getting traction (meetings booked, profiles viewed) vs being ignored. Lets organizers proactively help underperforming sponsors.'},
+        ],
+        tech:[
+          {t:'Real-time data pipeline', b:'Dashboard needs WebSocket or SSE connections for live updates. Precompute aggregates (connection count per attendee) on write, not on read.'},
+          {t:'Event log architecture', b:'Every action (request sent, message sent, meeting booked) should write to an append-only event log. Dashboard queries aggregate this log.'},
+          {t:'Credit issuance API', b:'Organizers need a one-click way to push credits to individual attendees or bulk segments. Must be rate-limited to prevent abuse.'},
+        ],
+        biz:[
+          {t:'Organizer confidence', b:'A rich live dashboard is a major reason organizers choose premium tiers. The feeling of being "in control" during a high-stakes event is a strong selling point.'},
+          {t:'Data for post-event sales', b:'The live dashboard data feeds the post-event report. Make it exportable in one click — this is how the platform gets presented in boardrooms.'},
+          {t:'Support escalation path', b:'Build a "flag this attendee" button for organizers to raise issues (harassment reports, suspicious activity). Event issues cannot wait for a ticket queue.'},
+        ],
+        flags:['Differentiator feature','Requires real-time infra','Churn prevention tool']
+      },
+      {
+        num:'05', name:'Analytics & ROI', sub:'Post-event outcomes',
+        desc:'After the event closes, organizers get a full performance report. This report is what they show to their board and sponsors, and use to decide whether to run the event again on this platform. A weak report is a leading indicator of churn.',
+        ux:[
+          {t:'Executive summary first', b:'Lead with 4–5 headline numbers: total connections, meetings held, messages sent, sponsor leads generated, NPS score. Organizers should get the story in 10 seconds.'},
+          {t:'Exportable & shareable', b:'One-click PDF export of the full report. A shareable link with a token that sponsors can use to view their own section.'},
+          {t:'Benchmark comparisons', b:'Show how this event performed vs the platform average (anonymised). Context motivates improvement and justifies the platform cost.'},
+        ],
+        tech:[
+          {t:'Metric definitions', b:'Define each metric precisely: a "connection" = accepted request; a "meeting" = both parties confirmed AND the time has passed; a "lead" = sponsor connection + at least one message. Fuzzy metrics destroy trust.'},
+          {t:'Data retention policy', b:'Attendee PII has a retention limit under GDPR (typically 12 months post-event). Build automated deletion jobs. Aggregate anonymised metrics can be retained indefinitely.'},
+          {t:'Report generation', b:'Pre-generate reports as background jobs at event close — complex queries on large events can take minutes. Store as a snapshot document.'},
+        ],
+        biz:[
+          {t:'This report sells the next event', b:'If organizers can show stakeholders strong networking ROI, they run the event again. The analytics product is the renewal driver.'},
+          {t:'Sponsor report = upsell', b:'Sponsors who see clear lead ROI will upgrade their tier for the next event. Build sponsor-specific report sections showing cost-per-lead vs industry benchmarks.'},
+          {t:'NPS collection', b:'Send an automated post-event survey to attendees and sponsors 24 hours after the event ends. NPS and free-text feedback feed directly into product improvement cycles.'},
+        ],
+        flags:['Renewal driver','Sponsor upsell trigger','GDPR data retention']
+      }
+    ]
+  },
+  att: {
+    color: '#1D9E75', bg: '#E1F5EE', textColor: '#085041',
+    steps: [
+      {
+        num:'01', name:'Register', sub:'Ticket purchase',
+        desc:'The attendee lands on the event page, reviews ticket options, and completes purchase. This is the first brand touchpoint — first impressions of speed, clarity, and trust determine whether they bother completing their profile, which is the most critical next step.',
+        ux:[
+          {t:'Event page design', b:'The event landing page must answer three questions immediately: What is this? Who is attending? Why should I come? Social proof (attendee logos, speaker headshots, past event stats) increases conversion.'},
+          {t:'Frictionless checkout', b:'Guest checkout option reduces drop-off. Collect just email + name at payment. Defer profile completion to a post-purchase flow where motivation is higher.'},
+          {t:'Confirmation & onboarding email', b:'The confirmation email is the highest-open-rate email in the funnel. Preview who is attending (2–3 matched profiles) and link to profile completion with a deadline.'},
+        ],
+        tech:[
+          {t:'Idempotent payment handling', b:'Handle duplicate payment submissions gracefully using Stripe payment intents with idempotency keys. Duplicate purchases are a support nightmare.'},
+          {t:'Ticket inventory management', b:'Capacity limits per ticket type with atomic decrement on purchase. Use database-level locking or a queue to prevent overselling.'},
+          {t:'Account creation on purchase', b:'Auto-create an account on successful payment (email + temp password). Send a "set your password" link in the confirmation email. Never block ticket access behind account setup.'},
+        ],
+        biz:[
+          {t:'Conversion rate baseline', b:'Industry average for event registration pages is 30–50% of page visitors. Track this from day one. Anything below 25% warrants A/B testing the page copy and CTA.'},
+          {t:'Early bird pricing', b:'Time-gated pricing tiers create urgency and front-load cash flow for the organizer. Build this natively into ticket type configuration.'},
+          {t:'Refund & transfer policy', b:'Define clearly: can attendees get a refund? Transfer their ticket? What is the cutoff? Ambiguity generates chargebacks.'},
+        ],
+        flags:['Revenue entry point','Highest drop-off risk','First brand impression']
+      },
+      {
+        num:'02', name:'Build profile', sub:'Goals & interests',
+        desc:'The attendee fills in their professional profile — the core data asset the entire platform depends on. Profile completeness is the single biggest predictor of networking success. An incomplete profile gets poor matches, has a poor event, and blames the platform.',
+        ux:[
+          {t:'Progress indicator', b:'Show a prominent completion percentage ("Your profile is 60% complete"). Each incomplete section should show a specific benefit of completing it.'},
+          {t:'LinkedIn import', b:'Allow one-click import from LinkedIn to pre-fill name, company, role, and bio. Reduces completion time from 5 minutes to 30 seconds. Most impactful feature for profile completion rates.'},
+          {t:'Networking goals field', b:'This is the most critical field for matchmaking. Give attendees structured options (Find investors / Hire talent / Find partners / Sell / Learn / Mentor) plus a free-text field.'},
+        ],
+        tech:[
+          {t:'Profile completeness score', b:'Compute a real-time completeness score (0–100) as the user fills in the form. Store this on the profile record — used as a matchmaking input signal.'},
+          {t:'Rich text bio with limits', b:'Bio field: plain text, 500 char limit. Scan on save for spam patterns (URLs, phone numbers, email addresses in bio to prevent off-platform solicitation).'},
+          {t:'Profile version history', b:'Log profile edits with timestamps. Enables "profile updated mid-event" detection which can surface re-match opportunities.'},
+        ],
+        biz:[
+          {t:'Profile completion drives retention', b:'Attendees with complete profiles have 3–4x more connections. Track completion rate as a product health metric. Below 60% average signals a UX problem.'},
+          {t:'Data quality = matchmaking quality', b:'The AI matchmaking engine is only as good as the data it receives. Every profile field is a product decision.'},
+          {t:'Privacy controls', b:'Attendees must control what is visible to others (hide company if job-seeking discreetly). Privacy settings reduce drop-off from privacy-conscious professionals.'},
+        ],
+        flags:['Matchmaking quality gate','Highest ROI UX investment','LinkedIn import = critical']
+      },
+      {
+        num:'03', name:'AI matchmaking', sub:'Discover connections',
+        desc:'The AI engine analyses role, industry, company type, seniority, stated goals, and interest tags to generate ranked connection recommendations. This is the product\'s core differentiator — the quality of these recommendations determines whether attendees find the platform valuable.',
+        ux:[
+          {t:'Match card design', b:'Each recommendation should show: photo, name, role, company, why they are a match ("Both building in fintech · Both seeking investment partners"), and a match confidence indicator.'},
+          {t:'Networking map', b:'The interactive cluster map visualises attendees grouped by industry and interest. It serves exploration and serendipity, not precision matching. Both views are needed.'},
+          {t:'Smart icebreakers', b:'When an attendee views a profile, show 2–3 AI-generated conversation starters based on shared context. These dramatically lower the anxiety of the first message.'},
+        ],
+        tech:[
+          {t:'Matching algorithm', b:'Start with a weighted scoring model: role compatibility (Founder→Investor), industry overlap, goal alignment, company stage match. Layer on collaborative filtering once you have event volume.'},
+          {t:'Match freshness', b:'Recompute matches when a profile is significantly updated. Cache with a TTL (e.g. 6 hours). Use approximate nearest-neighbour search (FAISS or pgvector) for scale.'},
+          {t:'Icebreaker generation', b:'Use a language model prompted with both profiles to generate 3 short icebreaker prompts. Cache per-pair. Rate-limit LLM calls per event to control cost.'},
+        ],
+        biz:[
+          {t:'Match quality = NPS driver', b:'"Quality of connections made" is the top-rated factor for event satisfaction in post-event surveys. The matching algorithm is the product.'},
+          {t:'Cold start problem', b:'New events have few attendees — matches are poor early. Consider pre-populating matches from LinkedIn-style profile data collected at registration.'},
+          {t:'Explainability builds trust', b:'Showing attendees why they were matched ("based on your goal: find fintech investors") increases request acceptance rates.'},
+        ],
+        flags:['Core differentiator','Cold start challenge','LLM cost management']
+      },
+      {
+        num:'04', name:'Send connection request', sub:'Intention tags + credits',
+        desc:'The attendee selects an intention tag and sends a connection request. For VIP-protected attendees it costs credits. The intention tag forces the sender to articulate why they want to connect — this friction dramatically improves connection quality and reduces unwanted solicitation.',
+        ux:[
+          {t:'Intention tag UX', b:'Present tags as large, clearly labelled buttons (not a dropdown): Hiring · Investment · Partnership · Mentorship · Sales · Collaboration. Add a short optional note (140 chars).'},
+          {t:'Credit cost transparency', b:'If the target is VIP-protected, clearly show the credit cost before the send button becomes active. Show current wallet balance inline. Never surprise the user with a cost after tapping send.'},
+          {t:'Request status tracking', b:'Senders need to see: Pending / Accepted / Declined / Expired. Unanswered requests after 24h should expire automatically.'},
+        ],
+        tech:[
+          {t:'Request state machine', b:'States: draft → sent → (accepted | declined | expired). On accept: create a connection record, open a message thread, deduct credits if applicable, issue VIP cashback. All in a single transaction.'},
+          {t:'Credit ledger', b:'Implement credits as an append-only ledger (type: purchase/earned/spent/refunded, amount, reason, timestamp). Never store a mutable balance — derive it from the ledger SUM.'},
+          {t:'Anti-spam rate limiting', b:'Cap requests per attendee per hour (e.g. 10/hr, 30/day). Apply stricter limits for new accounts. Bulk sending to VIPs is a spam signal.'},
+        ],
+        biz:[
+          {t:'Credit economy balance', b:'The system must feel fair, not extractive. If VIP access costs feel too high, premium attendees disengage. If too low, VIPs are overwhelmed. Tune based on acceptance rate data.'},
+          {t:'Intention tag data value', b:'Every sent tag is a structured signal of attendee intent. In aggregate this shows organizers what their audience actually wants.'},
+          {t:'Declined request handling', b:'When a request is declined, refund credits. Do not show who declined — only show "not accepted". Reduces awkward in-person encounters at the venue.'},
+        ],
+        flags:['Revenue engine','Spam prevention critical','Intention flow design']
+      },
+      {
+        num:'05', name:'Pre-meeting chat', sub:'Messaging + icebreakers',
+        desc:'Once a connection is accepted, both parties enter a private message thread before any meeting is scheduled. The pre-meeting chat warms up the relationship, surfaces shared context, and dramatically increases the likelihood that a proposed meeting will be accepted and attended.',
+        ux:[
+          {t:'Chat-first, not calendar-first', b:'Many platforms jump straight to scheduling — but cold calendar invites get ignored. The chat stage builds rapport first. The "schedule meeting" button should only become prominent after the first message exchange.'},
+          {t:'AI icebreaker injection', b:'On thread open, auto-insert a suggested first message ("I noticed we\'re both focused on Series A SaaS"). One tap to send as-is or edit. Reduces blank-page anxiety.'},
+          {t:'Message read receipts', b:'Show "Seen" status on messages. If a message is unread after 6 hours, send a gentle push notification. Read receipts reduce ghosting.'},
+        ],
+        tech:[
+          {t:'Real-time messaging', b:'WebSocket-based messaging (Socket.io or Pusher) for live delivery. Fall back to polling (every 10s) for low-bandwidth mobile. Store messages with thread_id, sender_id, content, created_at, read_at.'},
+          {t:'Push notification pipeline', b:'Trigger push (mobile) + in-app (web) notifications on: new message, connection accepted, meeting proposed. Use a notification queue to avoid blocking the main request path.'},
+          {t:'Message moderation', b:'Run messages through a content classifier on save. Flag abuse patterns. Auto-block and report to event organizer. Required under UK Online Safety Act principles.'},
+        ],
+        biz:[
+          {t:'No-show reduction', b:'Attendees who exchange 3+ messages before a meeting have significantly lower no-show rates than those who skip straight to scheduling.'},
+          {t:'Engagement depth metric', b:'Track messages per connection as a key product health metric. Low message depth signals icebreakers are not working or match quality is poor.'},
+          {t:'Chat history post-event', b:'Attendees should retain access to all messages for at least 90 days post-event. Losing this chat history damages trust.'},
+        ],
+        flags:['Your addition','No-show reducer','Real-time infra needed']
+      },
+      {
+        num:'06', name:'Schedule meeting', sub:'Calendar sync',
+        desc:'Either party proposes a meeting time with a location (in-person room or virtual link). On confirmation, both parties receive a Google Calendar invite with reminders. A scheduled meeting is the most tangible, measurable outcome the platform produces.',
+        ux:[
+          {t:'Availability picker', b:'Show a simple time-slot grid covering the event day(s). Grey out already-booked slots. Allow the proposer to offer 2–3 time options to reduce back-and-forth.'},
+          {t:'In-person location support', b:'For in-venue meetings, show a list of predefined meeting spots (Lounge Area, Booth 12, Breakout Room B) that the organizer has configured.'},
+          {t:'Meeting reminder notifications', b:'Send push + email reminders: 24 hours before, 1 hour before, and 10 minutes before. The 10-minute reminder is most impactful for no-show reduction.'},
+        ],
+        tech:[
+          {t:'Google Calendar OAuth', b:'OAuth 2.0 flow to write events to the attendee\'s Google Calendar. Store access + refresh token per user. Handle token expiry with a reauth prompt. Also support Outlook for enterprise attendees.'},
+          {t:'Meeting state machine', b:'States: proposed → confirmed → occurred → (rated | skipped). "Occurred" is triggered when the meeting time passes. This determines which meetings count in analytics.'},
+          {t:'Virtual meeting links', b:'Auto-generate a unique Zoom/Google Meet link per confirmed meeting. Do not share a single link for all meetings — attendees need privacy and the ability to join the right call.'},
+        ],
+        biz:[
+          {t:'Meetings are the core KPI', b:'Track meetings confirmed per attendee, meetings held (both checked in), and meeting satisfaction ratings as your North Star metrics.'},
+          {t:'Organizer table management', b:'Offer a meeting table booking feature: attendees can reserve a physical table for a 30-min slot. A premium upsell for large conferences.'},
+          {t:'Credit reward on completion', b:'Consider awarding a small credit bonus when a meeting is marked complete — this incentivises follow-through and creates a virtuous cycle.'},
+        ],
+        flags:['North Star metric','Google OAuth required','Reminder timing critical']
+      },
+      {
+        num:'07', name:'Meet & exchange cards', sub:'QR digital cards',
+        desc:'The in-person or virtual meeting happens. Attendees share their digital business card instantly via QR code. This is the physical-world moment the platform has been building toward. The card exchange must feel effortless and professional.',
+        ux:[
+          {t:'Card display & scan', b:'One tap from the main nav to show your QR code. Opens a mobile-optimised profile page (no login required). Include: name, role, company, photo, LinkedIn URL, and a CTA to connect on the platform.'},
+          {t:'Customisable card', b:'Let attendees choose a card colour, layout, and which contact details to show. Card personalisation is a strong engagement driver and gives attendees ownership.'},
+          {t:'NFC tap support', b:'Add NFC tap-to-share as an alternative to QR. One tap → profile exchange. No camera needed. The smoothest possible UX for in-person card exchange.'},
+        ],
+        tech:[
+          {t:'Card URL structure', b:'Each card needs a stable short URL: platform.com/card/[username]. Must load within 1 second on mobile LTE — it is opened under time pressure in a face-to-face conversation.'},
+          {t:'View tracking', b:'Log every card scan: who scanned, when, at which event. Store scan_logs with scanner_id, card_owner_id, event_id, timestamp. Gives attendees a "card views" metric.'},
+          {t:'Offline QR support', b:'The QR code must be renderable offline (no API call needed). Store the QR data locally on the device. Many venues have poor WiFi — if the card requires internet, it will fail at the worst moment.'},
+        ],
+        biz:[
+          {t:'The card is a marketing surface', b:'Every scanned card is a brand impression. Include a subtle "Powered by [platform]" link on the card view page — this drives organic growth from non-attendees.'},
+          {t:'Post-meeting follow-up nudge', b:'30 minutes after a completed meeting, send a push: "Great meeting with [Name]? Add a note to remember your conversation." Drives retention.'},
+          {t:'Card as a persistent asset', b:'The digital card should outlive the event. After the event ends, the card URL stays live. A long-tail engagement hook that keeps your platform in their professional workflow.'},
+        ],
+        flags:['Your addition','Offline capability needed','Viral growth surface']
+      },
+      {
+        num:'08', name:'Earn & rank', sub:'Credits & leaderboard',
+        desc:'Active networking earns credits and leaderboard position. This is the gamification layer — it motivates attendees who need an extrinsic nudge to engage, and rewards those who contribute most to the network\'s health. Badly designed gamification feels manipulative; well-designed feels like recognition.',
+        ux:[
+          {t:'Leaderboard visibility', b:'Show the leaderboard prominently. Always show the user\'s own position ("You are #47 — 3 more connections to reach the top 20"). Position visibility motivates far more than showing the top 10 alone.'},
+          {t:'Credit reward notifications', b:'Celebrate credit earnings in real-time with a brief toast notification ("You earned 2 credits for completing your meeting with Sarah"). Immediate, specific feedback.'},
+          {t:'Transparent credit rules', b:'Show a clear, simple table of how credits are earned and spent. Hidden rules feel like dark patterns. Transparency builds trust and increases engagement.'},
+        ],
+        tech:[
+          {t:'Event-driven credit awards', b:'Credit awards must be triggered by verified events (connection accepted, meeting confirmed, meeting occurred) not self-reported actions. Use the event log to drive awards idempotently.'},
+          {t:'Leaderboard computation', b:'Pre-compute rankings as a background job every 15 minutes rather than on every page load. Cache in Redis. Real-time leaderboards are expensive and the 15-min lag is imperceptible.'},
+          {t:'Anti-gaming measures', b:'Detect suspicious patterns: bulk request sending, fake meeting check-ins, account sharing. Apply automated rate limits and manual review flags. Credit fraud is an existential risk.'},
+        ],
+        biz:[
+          {t:'Credit economy flywheel', b:'Credits spent on VIP access → VIP gets cashback → VIP is rewarded for being popular → VIP engages more → event quality improves → more attendees buy credits.'},
+          {t:'Leaderboard prizes', b:'Consider organizer-funded prizes (free ticket to next event, sponsor swag, credit top-up). Prizes amplify the motivational effect and give sponsors a branded engagement vehicle.'},
+          {t:'Credit expiry policy', b:'Credits should expire (e.g. 90 days post-event). Expiry drives urgency. Communicate expiry clearly — surprise expiry destroys trust.'},
+        ],
+        flags:['Gamification balance critical','Anti-fraud required','Credit expiry policy needed']
+      }
+    ]
+  },
+  spo: {
+    color: '#BA7517', bg: '#FAEEDA', textColor: '#633806',
+    steps: [
+      {
+        num:'01', name:'Build sponsor profile', sub:'Logo, reps, products',
+        desc:'Sponsors set up their presence on the platform — logo, company description, product listings, and attending representative profiles. The quality of the profile directly determines how many attendees choose to engage with the sponsor.',
+        ux:[
+          {t:'Self-serve onboarding', b:'Sponsors complete their own profile via an invite link without organizer assistance. Step-by-step wizard: company basics → logo upload → product tags → add reps.'},
+          {t:'Rep profile richness', b:'Sponsor reps need full attendee-style profiles (photo, bio, role, what meetings they want). A faceless company booth gets ignored. Human rep profiles are the primary engagement driver.'},
+          {t:'Product/service tags', b:'Allow sponsors to tag their products with industry and interest tags that match the matchmaking taxonomy. Enables AI to recommend relevant sponsors to attendees.'},
+        ],
+        tech:[
+          {t:'Logo CDN & optimisation', b:'Sponsor logos must load fast and render crisply at multiple sizes. Store originals in S3, serve via CDN with on-the-fly resizing. Accept SVG, PNG, JPG. Enforce minimum resolution (400×400).'},
+          {t:'Multi-rep account model', b:'A sponsor account has one owner and multiple rep sub-accounts, each linked to an attendee profile. Reps can access the sponsor dashboard to see their own lead pipeline.'},
+          {t:'Profile moderation', b:'Review logos and descriptions for policy compliance before going live. A simple approval workflow (auto-approve standard, manual review for enterprise) is sufficient.'},
+        ],
+        biz:[
+          {t:'Profile quality = ROI', b:'Sponsors with complete profiles (logo + bio + 3+ product tags + 2+ reps) get 4–5x more attendee engagement. Build a "profile strength" indicator to push sponsors toward completion.'},
+          {t:'Onboarding speed matters', b:'If onboarding takes more than 20 minutes, completion rates drop sharply. Provide a LinkedIn company page importer and a "copy from last event" option.'},
+          {t:'Contractual requirements', b:'Ensure sponsor profiles meet any contractual obligations (mandatory logo placement, required disclaimers). Legal review may be needed for regulated industries.'},
+        ],
+        flags:['Self-serve critical','Rep profiles = engagement key','Logo CDN required']
+      },
+      {
+        num:'02', name:'Premium visibility', sub:'Priority placement & tiers',
+        desc:'Sponsors purchase visibility upgrades that increase their presence on the networking map, AI recommendation feed, event leaderboard, and search results. This is the platform\'s highest-margin revenue line — but over-commercialising the discovery surface destroys attendee trust.',
+        ux:[
+          {t:'Tier benefits matrix', b:'Show sponsors an explicit matrix of what each tier gives: number of AI recommendation boosts, map placement priority, banner slots, lead export access. Specific numbers so sponsors can calculate expected ROI.'},
+          {t:'Placement preview', b:'Show sponsors exactly where their logo and profile will appear at each tier before they buy. A live mock of the networking map with their logo placed is more convincing than any sales copy.'},
+          {t:'Upgrade in-event', b:'Sponsors should be able to upgrade their tier during a live event if they see low engagement. Instant activation — this captures high-intent upgrade moments.'},
+        ],
+        tech:[
+          {t:'Boost scoring system', b:'Implement a sponsor_visibility_score per event: base score + tier multiplier (2x standard, 5x premium, 10x enterprise). Feed into the recommendation ranking algorithm as a weighted signal.'},
+          {t:'Impression tracking', b:'Log every sponsor surface impression: map view, feed card shown, profile opened. Distinguish between impression (shown) and engagement (clicked/connected).'},
+          {t:'Ad-like compliance', b:'Implement clear labelling ("Featured sponsor") on boosted placements. Required under ASA/FTC guidelines and protects attendee trust.'},
+        ],
+        biz:[
+          {t:'Organic credibility ceiling', b:'Around 20–30% of recommendations being sponsored is the maximum before attendees perceive the platform as pay-to-win. Build internal guardrails to enforce this ceiling.'},
+          {t:'Tier pricing strategy', b:'Anchor pricing to attendee count (e.g. £500 + £2/attendee for premium). Scales revenue with event size and feels fairer to sponsors.'},
+          {t:'Competitor exclusivity option', b:'Offer exclusive category sponsorship (only one payments company, one legal firm, etc.) as a premium product. Drives urgency and commands a significant price premium.'},
+        ],
+        flags:['Highest margin revenue','Credibility risk','Requires "Sponsored" labelling']
+      },
+      {
+        num:'03', name:'Receive connections', sub:'Attendee inbound',
+        desc:'Attendees discover sponsors through the networking map, AI recommendations, and the event feed, then initiate connections and conversations. Sponsor reps can also proactively reach out to matched attendees — this bidirectional flow separates this platform from a passive sponsor directory.',
+        ux:[
+          {t:'Rep notification centre', b:'Sponsor reps need a dedicated inbox showing all incoming connection requests, messages, and meeting proposals — separate from their personal attendee inbox.'},
+          {t:'Proactive outreach tools', b:'Reps should be able to browse attendees filtered by intent tag (e.g. "show me everyone looking for a payments solution") and send a sponsor-branded intro message.'},
+          {t:'Shared rep inbox', b:'For large sponsor teams: a shared team inbox where any available rep can pick up incoming requests. Prevents leads from going cold because one rep is in a meeting.'},
+        ],
+        tech:[
+          {t:'Connection routing', b:'When an attendee connects with a sponsor company (not a specific rep), route the connection to the most available rep based on: meeting capacity, booking load, and interest alignment.'},
+          {t:'CRM event stream', b:'Fire structured webhook events for every sponsor interaction: {type: "connection_accepted", attendee_id, rep_id, intent_tag, timestamp}. Sponsors need this to auto-create CRM leads.'},
+          {t:'Rate limiting on proactive outreach', b:'Apply daily outreach limits (e.g. 20 proactive requests/rep/day). Track acceptance rates — a rep with <5% acceptance rate gets flagged for spam review.'},
+        ],
+        biz:[
+          {t:'Lead quality over quantity', b:'Sponsors will tolerate fewer meetings if each meeting is high-quality. Intent-tag filtering means reps spend time only on genuinely interested attendees.'},
+          {t:'Rep accountability', b:'Track individual rep performance (meetings booked, connection acceptance rate). Reps who are not engaging actively can be replaced mid-event by the sponsor admin.'},
+          {t:'Sponsor–attendee trust', b:'Attendees need to feel that connecting with a sponsor is valuable. Build this through intent matching, clear rep profiles, and no surprise cold messages after the event.'},
+        ],
+        flags:['CRM integration priority','Anti-spam limits required','Intent routing design']
+      },
+      {
+        num:'04', name:'Schedule demos', sub:'Meet with prospects',
+        desc:'Sponsor reps confirm meeting times with interested attendees — at the booth, in a breakout room, or via virtual link. These meetings are the primary value delivery moment for sponsors. Everything before this is pipeline; this is conversion.',
+        ux:[
+          {t:'Rep availability calendar', b:'Each rep sets available slots at the start of the event. Attendees can see available slots before proposing a meeting — reduces proposal-rejection cycles.'},
+          {t:'Meeting type selection', b:'Let reps configure meeting types: "15-min intro", "30-min demo", "45-min deep dive". Each type has a duration and default location. Sets expectations and reduces over-running.'},
+          {t:'Walk-in handling', b:'Build a "walk-in meeting" feature where a rep can log an impromptu meeting instantly (scan the attendee\'s QR card → log meeting → appears in analytics).'},
+        ],
+        tech:[
+          {t:'Sponsor calendar model', b:'Build a resource-based scheduling model where rep time slots are a finite resource that gets depleted as meetings are booked.'},
+          {t:'Virtual meeting link generation', b:'Auto-generate a unique Zoom/Google Meet link on meeting confirmation. Do not reuse links. Expire links 30 minutes after the meeting end time.'},
+          {t:'No-show handling', b:'If an attendee does not show within 5 minutes, send them a push notification and allow the rep to mark the meeting as a no-show. No-show data is important for sponsor ROI calculations.'},
+        ],
+        biz:[
+          {t:'Demo meeting = highest-value action', b:'A completed sponsor demo is worth 10x a profile view in the sales funnel. Track demo completion rates by sponsor and by event.'},
+          {t:'Post-meeting CRM push', b:'Immediately after a meeting is marked complete, prompt the rep to add a note. Push note + meeting metadata to the sponsor\'s CRM. The rep\'s memory is freshest at this moment.'},
+          {t:'Meeting as upsell justification', b:'Build a cost-per-meeting calculation into the sponsor report. A sponsor who books 20 demos can see the implied ROI on their sponsorship spend.'},
+        ],
+        flags:['Highest-value sponsor action','CRM notes timing critical','No-show tracking needed']
+      },
+      {
+        num:'05', name:'Lead analytics', sub:'ROI measurement & export',
+        desc:'Post-event, sponsors view a full breakdown of their engagement: profile views, connections, messages, and meetings. They export leads as CSV or push to their CRM. This report is the renewal decision document — it is what sponsors use to justify the sponsorship cost internally.',
+        ux:[
+          {t:'Lead scoring view', b:'Rank leads by engagement depth: meeting held + positive note > meeting held > multiple messages > single message > connection only. Helps reps prioritise post-event follow-up.'},
+          {t:'One-click CSV export', b:'Export all leads with: attendee name, company, role, intent tag, interactions, meeting date/time, rep notes. Must open cleanly in Excel — test with real data before launch.'},
+          {t:'Filter & search', b:'Sponsors need to filter leads by: intent tag, interaction type, rep they met with. Lets a team of 5 reps each pull their own qualified lead list after the event.'},
+        ],
+        tech:[
+          {t:'Lead data assembly', b:'A "lead" is a JOIN across: attendee_profiles, connections, messages, meetings, sponsor_interactions, and rep_notes. Pre-assemble as a materialised view — not a real-time query.'},
+          {t:'CRM webhook / Zapier', b:'Build a Zapier-compatible webhook that fires on new lead events. Gives sponsors a no-code path to push leads into any CRM without custom integration work.'},
+          {t:'Data access control', b:'Sponsors can only access data for their own leads — no cross-sponsor data leakage. Implement row-level security on all sponsor data queries.'},
+        ],
+        biz:[
+          {t:'The report closes the renewal', b:'Sponsors who see a positive ROI report renew at 70%+ rates. Invest in the report UX as a direct revenue retention lever.'},
+          {t:'Benchmark data', b:'"Your cost-per-lead was £32 vs platform average of £58." Benchmarks make sponsors feel they got a good deal and justify the investment internally.'},
+          {t:'GDPR export compliance', b:'Sponsor lead exports must comply with the data sharing consent given at registration. Attendees who did not consent must not appear in the sponsor export.'},
+        ],
+        flags:['Renewal decision document','GDPR export compliance','Zapier integration high ROI']
+      }
+    ]
+  }
+};
+
+let currentJourney = 'org';
+let currentStep = 0;
+
+function renderSidebar(j) {
+  const data = journeys[j];
+  document.getElementById('step-list').innerHTML = data.steps.map((s, i) => `
+    <div class="sitem${i === currentStep ? ' active' : ''}" onclick="selectStep(${i})">
+      <div class="snum">${s.num}</div>
+      <div><div class="sname">${s.name}</div><div class="ssub">${s.sub}</div></div>
+    </div>`).join('');
+}
+
+function renderMain(j, idx) {
+  const data = journeys[j];
+  const s = data.steps[idx];
+  const sections = [
+    { title: 'UX CONSIDERATIONS', dot: '#378ADD', items: s.ux },
+    { title: 'TECHNICAL CONSIDERATIONS', dot: '#7F77DD', items: s.tech },
+    { title: 'BUSINESS & PRODUCT', dot: '#1D9E75', items: s.biz }
+  ];
+  document.getElementById('main-panel').innerHTML = `
+    <div class="step-head">
+      <div class="step-title-row">
+        <span class="step-num-big" style="background:${data.bg};color:${data.textColor}">${s.num}</span>
+        <span class="step-name-big">${s.name}</span>
+      </div>
+      <div class="step-desc">${s.desc}</div>
+      <div class="flag-row">${s.flags.map(f => `<span class="flag" style="background:${data.bg};color:${data.textColor}">${f}</span>`).join('')}</div>
+    </div>
+    <div class="sections">
+      ${sections.map(sec => `
+        <div class="sec">
+          <div class="sec-title">${sec.title}</div>
+          ${sec.items.map(item => `
+            <div class="ci">
+              <div class="cdot" style="background:${sec.dot}"></div>
+              <div class="ctext"><b>${item.t}</b> — ${item.b}</div>
+            </div>`).join('')}
+        </div>`).join('')}
+    </div>`;
+}
+
+function selectStep(idx) {
+  currentStep = idx;
+  renderSidebar(currentJourney);
+  renderMain(currentJourney, idx);
+}
+
+function switchJourney(j, el) {
+  currentJourney = j;
+  currentStep = 0;
+  document.querySelectorAll('.ttab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderSidebar(j);
+  renderMain(j, 0);
+}
+
+renderSidebar('org');
+renderMain('org', 0);
+</script>
+</body>
+</html>
