@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Flow Diagram — Virtual Event Networking Platform</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-info: #e6f1fb;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --text-info: #185fa5;
+    --border: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --bg-info: #0c2a45;
+      --text-primary: #e8e6dc;
+      --text-secondary: #a0a09a;
+      --text-tertiary: #68675f;
+      --text-info: #85b7eb;
+      --border: rgba(255,255,255,0.1);
+      --border-secondary: rgba(255,255,255,0.18);
+    }
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 32px 24px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+  .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 10px 18px; font-size: 13px; cursor: pointer; border-bottom: 2.5px solid transparent; color: var(--text-secondary); transition: all .15s; margin-bottom: -0.5px; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+  .tab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); font-weight: 500; }
+  .flow-panel { display: none; }
+  .flow-panel.active { display: block; }
+  .flow-row { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+  .step { flex: 1; min-width: 0; background: var(--bg-secondary); border: 0.5px solid var(--border); border-left-width: 2.5px; border-radius: var(--radius-md); padding: 10px 6px; text-align: center; cursor: pointer; transition: background .15s; }
+  .step:hover { background: var(--bg-primary); }
+  .step-num { font-size: 10px; color: var(--text-tertiary); margin-bottom: 3px; font-weight: 500; }
+  .step-title { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+  .step-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; line-height: 1.3; }
+  .arr { display: flex; align-items: center; color: var(--text-tertiary); font-size: 16px; flex: 0 0 14px; justify-content: center; }
+  .step.org { border-left-color: #7F77DD; }
+  .step.att { border-left-color: #1D9E75; }
+  .step.spo { border-left-color: #BA7517; }
+  .step.hl { border-left-color: #378ADD; background: var(--bg-info); }
+  .step.hl:hover { background: var(--bg-info); }
+  .info-box { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 12px; color: var(--text-secondary); margin-top: 12px; min-height: 44px; line-height: 1.5; transition: all .2s; }
+  .it { font-weight: 500; color: var(--text-primary); }
+  .wrap-hint { font-size: 10px; color: var(--text-tertiary); padding: 2px 0 4px 4px; display: flex; align-items: center; gap: 4px; }
+  .hl-note { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; padding: 6px 8px; border-radius: var(--radius-md); border: 0.5px solid var(--border); }
+  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; background: var(--bg-info); color: var(--text-info); margin-right: 4px; }
+</style>
+</head>
+<body>
+<h1>User Flow Diagram</h1>
+<p class="subtitle">Virtual Event Networking Platform — Organizer · Attendee · Sponsor</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab(this,'organizer')">Event Organizer</button>
+  <button class="tab" onclick="switchTab(this,'attendee')">Attendee</button>
+  <button class="tab" onclick="switchTab(this,'sponsor')">Sponsor</button>
+</div>
+
+<div class="flow-panel active" id="panel-organizer">
+  <div class="flow-row">
+    <div class="step org" onclick="si('organizer','Create Event','Define event name, description, date, location, agenda items, and ticket types through the organizer setup wizard.')">
+      <div class="step-num">01</div><div class="step-title">Create Event</div><div class="step-sub">Name, date, agenda, tickets</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step org" onclick="si('organizer','Configure Registration','Enable in-house ticketing, set prices per ticket type, and define attendee data collection fields (role, industry, goals).')">
+      <div class="step-num">02</div><div class="step-title">Set Up Registration</div><div class="step-sub">Tickets &amp; data fields</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step org" onclick="si('organizer','Manage Sponsors','Onboard sponsors with logos, product info, and rep details. Configure premium visibility tiers and assign credit promos.')">
+      <div class="step-num">03</div><div class="step-title">Manage Sponsors</div><div class="step-sub">Profiles &amp; visibility tiers</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step org" onclick="si('organizer','Live Dashboard','Monitor registrations, connection requests, messages, and scheduled meetings in real time. Spot engagement gaps early.')">
+      <div class="step-num">04</div><div class="step-title">Monitor Activity</div><div class="step-sub">Live networking dashboard</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step org" onclick="si('organizer','Event Analytics','Post-event reporting: connections made, meetings held, messages sent, sponsor lead counts, ticket revenue, and engagement scores.')">
+      <div class="step-num">05</div><div class="step-title">Analytics &amp; ROI</div><div class="step-sub">Outcomes &amp; impact</div>
+    </div>
+  </div>
+  <div class="info-box" id="info-organizer">Click any step above to explore what happens at that stage.</div>
+</div>
+
+<div class="flow-panel" id="panel-attendee">
+  <div class="flow-row">
+    <div class="step att" onclick="si('attendee','Register &amp; Buy Ticket','Purchase a ticket through the event page. Receive a confirmation email and link to complete your profile before the event.')">
+      <div class="step-num">01</div><div class="step-title">Register</div><div class="step-sub">Buy ticket</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step att" onclick="si('attendee','Build Your Profile','Enter name, company, role, industry, bio, interests, and networking goals. This data powers AI matchmaking — the more detail, the better the matches.')">
+      <div class="step-num">02</div><div class="step-title">Build Profile</div><div class="step-sub">Goals &amp; interests</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step att" onclick="si('attendee','AI Matchmaking &amp; Discovery','Browse AI-ranked connection suggestions. View the interactive networking map showing attendee clusters by industry. Smart icebreakers are generated from shared similarities.')">
+      <div class="step-num">03</div><div class="step-title">AI Matchmaking</div><div class="step-sub">Smart recommendations</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step att hl" onclick="si('attendee','Send Connection Request','Select an intention tag — Hiring, Investment, Partnership, Mentorship, Sales, or Collaboration — and send a request. Standard requests are free; VIP attendees require a credit spend to access.')">
+      <div class="step-num">04</div><div class="step-title">Send Request</div><div class="step-sub">Intention tag + credits</div>
+    </div>
+  </div>
+  <div class="wrap-hint">↳ request accepted →</div>
+  <div class="flow-row">
+    <div class="step att hl" onclick="si('attendee','Pre-Meeting Chat','Both parties enter a private messaging thread. The AI generates smart icebreakers based on shared professional similarities to make the first message easier.')">
+      <div class="step-num">05</div><div class="step-title">Pre-Meeting Chat</div><div class="step-sub">Messaging + icebreakers</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step att" onclick="si('attendee','Schedule a Meeting','Either party proposes a meeting time with an in-person location or virtual link. Once confirmed, the meeting auto-syncs to Google Calendar with reminders sent to both.')">
+      <div class="step-num">06</div><div class="step-title">Schedule Meeting</div><div class="step-sub">Google Calendar sync</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step att" onclick="si('attendee','Meet &amp; Exchange Cards','Attend the meeting in person or virtually. Share your digital business card via QR code instantly — no typing, no friction. Cards include contact info and networking goals.')">
+      <div class="step-num">07</div><div class="step-title">Meet &amp; Exchange</div><div class="step-sub">QR digital cards</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step att" onclick="si('attendee','Earn Credits &amp; Rank Up','Active networking earns credits: accepting requests, completing meetings, and high message rates all reward credits. Rise on the leaderboard to unlock bonus credit rewards.')">
+      <div class="step-num">08</div><div class="step-title">Earn &amp; Rank</div><div class="step-sub">Credits &amp; leaderboard</div>
+    </div>
+  </div>
+  <div class="hl-note"><span class="badge">Your ideas</span> Steps 4 &amp; 5 (highlighted in blue) reflect your pre-meeting chat and individual card proposals</div>
+  <div class="info-box" id="info-attendee">Click any step above to explore what happens at that stage.</div>
+</div>
+
+<div class="flow-panel" id="panel-sponsor">
+  <div class="flow-row">
+    <div class="step spo" onclick="si('sponsor','Build Sponsor Profile','Upload company logo, write a description, list products and services, and add attending representative profiles with headshots and bios.')">
+      <div class="step-num">01</div><div class="step-title">Build Profile</div><div class="step-sub">Logo, reps, products</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step spo" onclick="si('sponsor','Purchase Premium Visibility','Upgrade for priority placement in the networking map, AI recommendation feed, and event leaderboard banner. Higher tier = more surface area.')">
+      <div class="step-num">02</div><div class="step-title">Premium Visibility</div><div class="step-sub">Priority placement</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step spo" onclick="si('sponsor','Engage With Attendees','Attendees discover sponsors through matchmaking and the map. They connect, message, or request a demo. Sponsor reps can also proactively reach out.')">
+      <div class="step-num">03</div><div class="step-title">Receive Connections</div><div class="step-sub">Attendee inbound</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step spo" onclick="si('sponsor','Schedule Demo Meetings','Reps confirm meeting times with prospects — in-person booth or virtual link. All meetings auto-sync to calendar. CRM notes can be added post-meeting.')">
+      <div class="step-num">04</div><div class="step-title">Schedule Demos</div><div class="step-sub">Meet with prospects</div>
+    </div>
+    <div class="arr">›</div>
+    <div class="step spo" onclick="si('sponsor','Lead Analytics Dashboard','View profile views, connection requests received, messages, and meetings held. Export leads as CSV or push to CRM via webhook for post-event follow-up.')">
+      <div class="step-num">05</div><div class="step-title">Lead Analytics</div><div class="step-sub">ROI &amp; export leads</div>
+    </div>
+  </div>
+  <div class="info-box" id="info-sponsor">Click any step above to explore what happens at that stage.</div>
+</div>
+
+<script>
+  function switchTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.flow-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+  function si(panel, title, desc) {
+    document.getElementById('info-' + panel).innerHTML = '<span class="it">' + title + '</span> — ' + desc;
+  }
+</script>
+</body>
+</html>
