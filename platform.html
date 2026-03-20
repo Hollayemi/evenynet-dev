@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile vs Web Features — Virtual Event Networking Platform</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-info: #e6f1fb;
+    --bg-success: #e1f5ee;
+    --bg-warning: #faeeda;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --text-info: #0c447c;
+    --text-success: #085041;
+    --text-warning: #633806;
+    --border: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --bg-info: #0c2a45;
+      --bg-success: #04342c;
+      --bg-warning: #412402;
+      --text-primary: #e8e6dc;
+      --text-secondary: #a0a09a;
+      --text-tertiary: #68675f;
+      --text-info: #85b7eb;
+      --text-success: #9fe1cb;
+      --text-warning: #fac775;
+      --border: rgba(255,255,255,0.1);
+      --border-secondary: rgba(255,255,255,0.18);
+    }
+  }
+  body {
+    font-family: var(--font);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 32px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+
+  .top-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+  .utab {
+    padding: 9px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; background: none; color: var(--text-secondary);
+    border-bottom: 2.5px solid transparent; margin-bottom: -0.5px;
+    font-family: var(--font); transition: all .15s;
+  }
+  .utab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+
+  .plat-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .plat-wrap { grid-template-columns: 1fr; } }
+
+  .plat-col { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .plat-head {
+    padding: 12px 14px; border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .plat-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .plat-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .plat-sub { font-size: 11px; color: var(--text-secondary); }
+
+  .cat-section { border-bottom: 0.5px solid var(--border); }
+  .cat-section:last-child { border-bottom: none; }
+  .cat-head {
+    padding: 8px 14px; font-size: 10px; font-weight: 500;
+    letter-spacing: .05em; color: var(--text-tertiary);
+    background: var(--bg-secondary);
+  }
+  .feat-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; cursor: pointer; transition: background .12s;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .feat-item:last-child { border-bottom: none; }
+  .feat-item:hover { background: var(--bg-secondary); }
+  .feat-item.selected { background: var(--bg-info); }
+  .feat-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .feat-name { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.3; margin-bottom: 2px; }
+  .feat-why { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+  .prio {
+    font-size: 10px; font-weight: 500; padding: 2px 6px;
+    border-radius: 3px; margin-left: 6px; vertical-align: middle;
+  }
+
+  .detail-box { margin-top: 16px; border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; display: none; }
+  .detail-head {
+    padding: 10px 14px; background: var(--bg-secondary);
+    border-bottom: 0.5px solid var(--border);
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+  }
+  .detail-body {
+    padding: 14px; display: grid;
+    grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  @media (max-width: 680px) { .detail-body { grid-template-columns: 1fr; } }
+  .detail-card { border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 10px; }
+  .detail-card.full { grid-column: 1 / -1; background: var(--bg-secondary); }
+  .detail-card-title {
+    font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+    margin-bottom: 6px; letter-spacing: .03em;
+  }
+  .detail-card-body { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .detail-card-body b { font-weight: 500; color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<h1>Mobile vs Web Features</h1>
+<p class="subtitle">Virtual Event Networking Platform — feature allocation by platform and user role. Click any feature for full detail.</p>
+
+<div class="top-tabs">
+  <button class="utab active" onclick="setUser('attendee', this)">Attendee</button>
+  <button class="utab" onclick="setUser('organizer', this)">Organizer</button>
+  <button class="utab" onclick="setUser('sponsor', this)">Sponsor</button>
+</div>
+
+<div class="plat-wrap">
+  <div class="plat-col">
+    <div class="plat-head">
+      <div class="plat-icon" style="background:#E1F5EE">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="4" y="1" width="8" height="14" rx="2" stroke="#085041" stroke-width="1.2"/>
+          <circle cx="8" cy="12.5" r="0.8" fill="#085041"/>
+        </svg>
+      </div>
+      <div><div class="plat-title">Mobile app</div><div class="plat-sub">On-event, on-the-go</div></div>
+    </div>
+    <div id="mobile-list"></div>
+  </div>
+  <div class="plat-col">
+    <div class="plat-head">
+      <div class="plat-icon" style="background:#E6F1FB">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="3" width="14" height="9" rx="1.5" stroke="#0C447C" stroke-width="1.2"/>
+          <path d="M5 13.5h6M8 12v1.5" stroke="#0C447C" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div><div class="plat-title">Web platform</div><div class="plat-sub">Pre-event, power tools</div></div>
+    </div>
+    <div id="web-list"></div>
+  </div>
+</div>
+
+<div class="detail-box" id="detail-box">
+  <div class="detail-head" id="detail-head"></div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<script>
+const data = {
+  attendee: {
+    mobile: [
+      {
+        cat: 'Networking & connections', dot: '#1D9E75',
+        features: [
+          { name: 'QR code card exchange', why: 'Instant profile swap — needs camera', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Display your QR code full-screen in one tap. The recipient scans and lands on your mobile-optimised profile page instantly — no login needed.', why: 'You are face-to-face with 30 seconds of attention. This must work in under 3 seconds, offline, in a noisy venue.', how: 'Pre-render QR into a local SVG/canvas on login. No network call at display time. Cache profile URL as a deep link.', consideration: 'Offline rendering is non-negotiable. Test on low-end Android in poor WiFi. QR must survive screen brightness changes.' } },
+          { name: 'NFC tap to connect', why: 'Phone-to-phone profile swap', prio: 'differentiator', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Two attendees tap phones back-to-back. Both receive an instant connection notification with each other\'s profiles.', why: 'Faster than QR for tech-savvy attendees. The "wow" moment that gets talked about. Zero camera friction.', how: 'Web NFC API (Android Chrome only). iOS requires a native app with CoreNFC. Fall back to QR silently if NFC unavailable.', consideration: 'iOS support requires native app, not a web app. Decide early whether mobile is PWA or native.' } },
+          { name: 'Live availability status', why: 'Signals open-to-connect right now', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Attendees set a status: "Open to connect", "In a meeting", "Coffee break — come find me". Visible on their profile and the networking map.', why: 'Removes the awkward cold approach. When someone\'s status says "Open to connect", reaching out feels invited, not intrusive.', how: 'Status stored in Redis with a 4-hour TTL (auto-expires). Pushed via WebSocket to the networking map in real time.', consideration: 'Must be easy to change — one tap from the home screen. If changing status takes 3+ steps, nobody uses it.' } },
+          { name: 'Connection request & send', why: 'Core networking action on-the-go', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Browse AI match suggestions, view a profile, pick an intention tag, and send a connection request — all within 20 seconds on mobile.', why: 'The core networking action happens in fleeting moments between sessions. Mobile friction = missed connections.', how: 'Optimistic UI — show the request as sent immediately. Reconcile in background. Intent tag picker as a bottom sheet, not a modal.', consideration: 'Back-navigation from the tag picker must not lose the profile. Pre-fill the last used intent tag as default.' } }
+        ]
+      },
+      {
+        cat: 'In-venue tools', dot: '#7F77DD',
+        features: [
+          { name: 'Meeting check-in', why: 'GPS or QR confirms you arrived', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'When you arrive at a meeting location, check in via a QR code at the venue or a GPS proximity trigger. Both parties checking in marks the meeting as "occurred".', why: 'Without check-in, analytics cannot distinguish held from no-show meetings. Check-in is also the trigger for credit rewards.', how: 'Option A: venue QR codes (printed at each table). Option B: GPS geofence (100m radius) — simpler for attendees but less precise.', consideration: 'GPS check-in is battery-intensive. Offer QR as primary with GPS as fallback. Never make check-in mandatory before a meeting can be marked held.' } },
+          { name: 'Schedule view & reminders', why: 'Day-of schedule in your pocket', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'A timeline view of all your scheduled meetings for the event day — with location, who you\'re meeting, and a one-tap "Get directions to table" link.', why: 'Attendees have 4–6 meetings in a day across different rooms. The mobile app is the map and agenda in one.', how: 'Pre-load the full schedule offline at app open. Reminder notifications at 1hr, 30min, and 10min before each meeting.', consideration: 'Time zone display — show all times in the attendee\'s local device timezone, not the event timezone.' } },
+          { name: 'Push notifications', why: 'Instant alerts for every action', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Push alerts for: new connection request, message received, meeting proposed, meeting reminder (10min), credit earned, match suggestion.', why: 'Events are noisy, busy, overwhelming. Without push, attendees miss connection requests for hours — by which time the moment is gone.', how: 'FCM (Android) + APNs (iOS). Notification categories with per-category opt-in in settings. Rich notifications with profile photo.', consideration: 'Notification fatigue is real. Default to "important only" and let users upgrade to "all". Never send marketing push.' } },
+          { name: 'Offline mode', why: 'Venue WiFi always fails', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Core features work without internet: view your schedule, display your QR card, view pre-loaded match list, read cached messages.', why: 'Large venue WiFi is notoriously unreliable. If the app requires internet for everything, it fails at the worst moments.', how: 'Cache schedule, match list, and last 50 messages in SQLite on-device at app open. Service worker for PWA. Sync on reconnect.', consideration: 'Clearly show an "offline mode" banner so attendees know their actions will sync when reconnected. Queue outgoing actions.' } }
+        ]
+      },
+      {
+        cat: 'Messaging & chat', dot: '#378ADD',
+        features: [
+          { name: 'Real-time messaging', why: 'Live chat between connections', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Full messaging thread with each connection — text messages, read receipts, and the AI-generated icebreaker injected at thread open.', why: 'Pre-meeting chat happens in stolen moments between sessions — at lunch, walking between rooms. It is inherently a mobile behaviour.', how: 'WebSocket for live delivery. Local message store for offline read. Background sync sends queued messages when reconnected.', consideration: 'Message composer must stay visible above the keyboard without layout shift. Test on small-screen Android.' } },
+          { name: 'Credit wallet quick view', why: 'Check balance before sending requests', prio: 'nice-to-have', prioBg: '#F1EFE8', prioColor: '#444441',
+            detail: { what: 'A quick-access credit balance widget on the home screen or in the nav bar. Tap to view transaction history and buy more credits.', why: 'Attendees need to know their balance before deciding to spend credits on a VIP request — especially mid-conversation.', how: 'Balance derived from ledger sum, cached locally and refreshed on app foreground. Purchase sheet uses Stripe mobile SDK.', consideration: 'Never show a stale balance. Refresh on every app-foreground event and immediately after any credit transaction.' } }
+        ]
+      }
+    ],
+    web: [
+      {
+        cat: 'Discovery & matchmaking', dot: '#378ADD',
+        features: [
+          { name: 'Interactive networking map', why: 'Needs a large canvas to be useful', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'A zoomable force-directed graph showing all attendees clustered by industry and interest. Click any node to view the profile and send a request.', why: 'The spatial overview of who is at the event is a desktop-class experience — zooming, panning, filtering by industry. Mobile reduces it to a list.', how: 'D3.js force simulation or a canvas-based renderer (Sigma.js). Pre-compute cluster positions server-side. Stream node data in pages.', consideration: 'Performance degrades sharply above 500 nodes. Implement progressive loading and limit visible nodes to the top 200 matches.' } },
+          { name: 'Deep profile browsing', why: 'Multi-tab research before reaching out', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Browse multiple attendee profiles in parallel using browser tabs. Filter by role, industry, company stage, and intent tags. Save profiles to a shortlist.', why: 'Pre-event research is a desktop workflow — attendees plan their networking strategy 24–48 hours before, at a computer.', how: 'Server-side filtering with URL-encoded params (shareable filtered views). Shortlist stored in user preferences. Keyboard navigation.', consideration: 'Profile pages must be indexable by the platform\'s internal search — not public web search (privacy). Canonical URLs per profile.' } },
+          { name: 'Match quality feedback', why: 'Keyboard input needed for feedback', prio: 'nice-to-have', prioBg: '#F1EFE8', prioColor: '#444441',
+            detail: { what: 'After viewing a recommended profile, attendees can mark it as "Relevant" or "Not relevant" with an optional text reason. Feeds the matching algorithm.', why: 'User feedback is the highest-signal training data for improving match quality. Web users give richer feedback than mobile users.', how: 'Feedback events stored with match_id, user_id, signal (positive/negative), reason, timestamp. Used to retrain scoring weights.', consideration: 'Keep feedback friction minimal — one click is enough. The text reason is optional. Never gate browsing behind feedback.' } }
+        ]
+      },
+      {
+        cat: 'Profile & account', dot: '#7F77DD',
+        features: [
+          { name: 'Full profile creation', why: 'Long-form input needs a keyboard', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Complete profile wizard: bio, professional history, interests, networking goals, social links, headshot upload, and custom field responses.', why: 'Filling in a 500-character bio, uploading a headshot, and configuring visibility settings is a 10-minute desktop task. Mobile users abandon it.', how: 'Multi-step form with auto-save on each step. LinkedIn import pre-fills all structured fields. Headshot cropper with aspect ratio lock.', consideration: 'LinkedIn OAuth scopes must be checked — not all fields are accessible. Have a manual fallback for each imported field.' } },
+          { name: 'LinkedIn profile import', why: 'Click-to-fill on desktop browser', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'One-click OAuth import from LinkedIn: pulls name, headline, current role, company, industry, bio summary, and profile photo.', why: 'Reduces profile completion time from 10 minutes to 90 seconds. Dramatically increases completion rates.', how: 'LinkedIn OAuth 2.0 with r_liteprofile + r_emailaddress + r_basicprofile scopes. Map LinkedIn fields to platform schema.', consideration: 'LinkedIn API rate limits apply per app. Cache the import result — do not re-fetch on every login.' } },
+          { name: 'Privacy & visibility settings', why: 'Granular controls need screen space', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Per-field visibility controls: what is shown to all attendees, to connections only, or hidden. Contact details, company name, and email can be individually toggled.', why: 'Privacy control is a trust feature. Professionals in sensitive job situations (quiet job search, stealth startup) need fine-grained control.', how: 'Visibility bitmask per field stored on profile. Applied at query time — profile API response omits hidden fields for non-connections.', consideration: 'Default visibility should be conservative (connections-only for contact details). Opt-in to full visibility, not opt-out.' } }
+        ]
+      },
+      {
+        cat: 'Meeting management', dot: '#1D9E75',
+        features: [
+          { name: 'Calendar week view', why: 'Meeting grid needs full-width layout', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'A full day/week calendar grid showing all scheduled meetings with time, location, and attendee name. Drag to reschedule. Click to add notes.', why: 'Managing 6 meetings across a 2-day event requires a real calendar view, not a list. Conflict detection needs the grid layout.', how: 'FullCalendar.js or a custom grid. Block-book slots to prevent double-booking. Sync state with Google Calendar API.', consideration: 'Show the event agenda on the same calendar so attendees can plan meetings around sessions they want to attend.' } },
+          { name: 'Availability configuration', why: 'Set open hours before the event', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'A time-block grid where attendees mark which hours they are available for meetings during each event day. Shown to others when they propose meetings.', why: 'Without published availability, every meeting proposal starts a back-and-forth. Pre-set availability eliminates that friction.', how: 'Availability stored as time ranges per event day. Intersected with existing bookings on the proposals screen.', consideration: 'Default to "all day available" and let attendees block out unavailable times — less friction than marking available slots.' } }
+        ]
+      }
+    ]
+  },
+  organizer: {
+    mobile: [
+      {
+        cat: 'Live event management', dot: '#7F77DD',
+        features: [
+          { name: 'Live KPI dashboard', why: 'Check event health on-the-go', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'A mobile-optimised dashboard showing 4 key event numbers: connections today, meetings scheduled, active messages, credits transacted.', why: 'Organizers are walking the venue floor. They check engagement on their phone between conversations — not at a laptop.', how: 'Precomputed aggregates pushed via WebSocket. Single-screen layout: 4 stat cards + a small sparkline for hourly activity.', consideration: 'Organizers need to see trends, not just totals. Show a "vs 1 hour ago" delta so they know if engagement is growing or stalling.' } },
+          { name: 'Attendee isolation alerts', why: 'Act fast while at the venue', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Push notification when an attendee has been active for 2+ hours with zero connections. Tap to view their profile and gift them credits.', why: 'Organizers can physically walk over to a struggling attendee or send a targeted credit nudge. This is a real-time intervention tool.', how: 'Background job checks isolation threshold every 30 min. Push notification with deep link to attendee profile + one-tap credit gift.', consideration: 'Do not show the attendee they were flagged as isolated. Frame the credit gift as a "welcome bonus" or "active networking reward".' } },
+          { name: 'Quick credit issuance', why: 'Push credits to attendees instantly', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Search for an attendee by name, select a credit amount, add an optional note, and send. Done in under 10 seconds.', why: 'An attendee approaches an organizer with a question about credits. The organizer needs to resolve it on the spot, not log in to a laptop.', how: 'Mobile-optimised credit issuance form. Confirm screen to prevent accidental sends. Rate-limited to 50 credits/attendee/day.', consideration: 'Log all manual credit issuances with organizer_id, timestamp, and reason. Audit trail is essential for resolving disputes.' } },
+          { name: 'Support flag review', why: 'Handle issues immediately at venue', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'View and action incoming attendee flags (harassment reports, spam complaints). Tap to view flagged content, suspend the account, or dismiss.', why: 'Event issues — especially harassment — need a same-minute response, not a 4-hour ticket queue. The organizer is on-site.', how: 'Flag queue with push notification on new flag. Actions: suspend, warn, dismiss. All actions logged with organizer_id.', consideration: 'Build a clear escalation path for serious incidents — flag should connect to a legal/safety contact, not just in-app actions.' } }
+        ]
+      },
+      {
+        cat: 'Registration & check-in', dot: '#1D9E75',
+        features: [
+          { name: 'On-the-door QR check-in', why: 'Scan tickets at the entrance', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Staff scan attendee ticket QR codes at the venue entrance to confirm attendance and mark them as "checked in". Shows attendee name and ticket type.', why: 'Replaces printed guest lists. Attendee status updates in real-time on the organizer dashboard.', how: 'Camera-based QR scanner in the app. Offline-first: cache ticket QR hashes locally so scanning works without internet.', consideration: 'Must handle simultaneous scans from multiple devices without race conditions — use a server-side check-in queue.' } },
+          { name: 'Attendee lookup', why: 'Quick name search at registration desk', prio: 'must-have', prioBg: '#E1F5EE', prioColor: '#085041',
+            detail: { what: 'Search attendees by name or email, view their ticket type, check-in status, and profile completeness. Mark as checked in manually for walk-ins.', why: 'Walk-ins, name changes, and ticket transfers happen constantly at registration desks. Staff need instant lookup.', how: 'Fuzzy search across attendee_profiles with debounced input. Results sorted by relevance. Manual check-in button on profile.', consideration: 'Offline search must work against a locally cached attendee list. Sync check-in status to server when reconnected.' } }
+        ]
+      }
+    ],
+    web: [
+      {
+        cat: 'Event creation & setup', dot: '#7F77DD',
+        features: [
+          { name: 'Event creation wizard', why: 'Complex multi-step setup', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: '5-step wizard: event basics → agenda builder → ticket type configuration → sponsor setup → publish & preview. Save progress at each step.', why: 'Creating an event involves uploading images, writing descriptions, configuring pricing tiers, and adding sponsor content. A 30-minute desktop task.', how: 'Step-by-step form with server-side draft saves every 30 seconds. Preview modal shows the attendee-facing event page at any step.', consideration: 'Allow organizers to navigate between steps freely — not force-linear. Some organizers know their agenda before their ticket prices.' } },
+          { name: 'Agenda builder', why: 'Drag-and-drop scheduling tool', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'A visual drag-and-drop timeline where organizers add sessions, assign speakers, set durations, and allocate to tracks or rooms.', why: 'Agenda building requires seeing the full day at once, moving sessions around, and managing parallel tracks — inherently a desktop layout.', how: 'FullCalendar or a custom drag-and-drop grid. Session entities: title, speaker_id FK, start/end time, room, description, tags.', consideration: 'Speaker profiles on agenda items should link to their attendee profile — enabling the session-to-networking bridge feature.' } },
+          { name: 'Registration field builder', why: 'Drag-and-drop form configuration', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'A visual form builder where organizers drag standard and custom fields into the registration flow. Set each field as required or optional.', why: 'Custom registration fields are a critical differentiator for enterprise organizers. Building them requires a proper drag-and-drop UI.', how: 'JSON-schema-based form definition. Field types: text, select, multiselect, yes/no, URL. Changes preview in a live form mock on the right.', consideration: 'Custom field keys must be consistent across events so they map to the same matchmaking signals. Provide a field library.' } },
+          { name: 'Ticket pricing & capacity', why: 'Multi-tier pricing configuration', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Configure up to 10 ticket types per event: name, price, capacity cap, sale period (start/end date), and which platform features each tier unlocks.', why: 'Tiered pricing (Early Bird / General / VIP) with automatic switching requires a dedicated configuration UI.', how: 'Ticket types stored as a child table. Promo codes as a separate entity with percentage/fixed discount, max uses, and expiry.', consideration: 'Test capacity enforcement under concurrent load — overselling a sold-out conference is a catastrophic organizer failure.' } }
+        ]
+      },
+      {
+        cat: 'Analytics & reporting', dot: '#1D9E75',
+        features: [
+          { name: 'Full analytics dashboard', why: 'Multi-panel data exploration', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Comprehensive event analytics: connection graph, meeting rate by hour, top connectors, credit economy activity, sponsor engagement heatmap, ticket sales curve.', why: 'Analytics require charts, filters, date ranges, and cross-metric drill-down — a multi-panel dashboard that only works on a large screen.', how: 'Recharts or Chart.js for visualisation. All metrics pre-aggregated on write. Drill-down routes to filtered tables.', consideration: 'Define metric methodology upfront and document it in the UI. Ambiguity in metric definitions erodes organizer trust.' } },
+          { name: 'Attendee management table', why: 'Bulk operations on large datasets', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Sortable, filterable table of all attendees: name, company, check-in status, connection count, meetings scheduled, profile completeness score. Bulk actions: send credits, send email, export.', why: 'Managing 500+ attendees requires a spreadsheet-like table with multi-select, filters, and bulk actions.', how: 'Virtualised table (react-window or TanStack Virtual) for performance. Server-side sort and filter. Bulk actions via a floating action bar on multi-select.', consideration: 'Export must be GDPR-compliant — only fields the organizer is permitted to export based on attendee consent settings.' } },
+          { name: 'Post-event report builder', why: 'PDF export and stakeholder sharing', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'A report template with all key event metrics, auto-populated. Organizers customise the summary text, choose which charts to include, and export as PDF or shareable link.', why: 'Organizers present this report to boards, sponsors, and stakeholders. It needs to look professional and be exportable.', how: 'Puppeteer/headless Chrome PDF generation. Shareable link with a read-only token. Sponsor sections are access-gated by sponsor token.', consideration: 'Snapshot the report at event close — do not re-query live data. Numbers in the report must never change after it is shared.' } },
+          { name: 'Sponsor management panel', why: 'Multi-sponsor configuration & oversight', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'View all sponsors, their tier, profile completeness, engagement stats, and rep activity. Edit tiers, issue promo credits, and manage sponsor visibility settings.', why: 'Organizers manage 5–20 sponsors per event. This requires a dedicated panel with per-sponsor stats and controls.', how: 'Sponsor cards with inline stats. Tier change with confirmation. Bulk visibility settings for premium placements.', consideration: 'Organizers must not see the private lead data of a sponsor — only their engagement aggregates (connections, meetings, impressions).' } }
+        ]
+      },
+      {
+        cat: 'Sponsor tools', dot: '#BA7517',
+        features: [
+          { name: 'Visibility tier configuration', why: 'Preview & manage placement', prio: 'must-have', prioBg: '#E6F1FB', prioColor: '#0C447C',
+            detail: { what: 'Configure which surfaces each sponsor tier appears on: networking map, AI feed, leaderboard banner, homepage feature. Live preview of each placement.', why: 'Selling visibility tiers requires showing organizers and sponsors exactly what they get before purchase.', how: 'Visibility config stored per sponsor_id x event_id. Preview renders a mock of each placement with the sponsor\'s actual logo and copy.', consideration: 'Cap total sponsored placements per surface (e.g. max 3 featured sponsors on the AI feed) and enforce this cap in the UI.' } },
+          { name: 'Prorated billing & invoicing', why: 'Finance workflow needs desktop', prio: 'nice-to-have', prioBg: '#F1EFE8', prioColor: '#444441',
+            detail: { what: 'Generate invoices for sponsor packages, send via email, track payment status, and issue credits on payment confirmation.', why: 'Enterprise sponsors require formal invoices and PO-based payment. This is a finance workflow that belongs on web.', how: 'Invoice PDF generation (Puppeteer). Payment status tracked as enum (pending/paid/overdue). Stripe payment links for self-serve payment.', consideration: 'Integrate with Xero or QuickBooks for organizers who need accounting exports. A Zapier webhook is the minimum viable path.' } }
+        ]
+      }
+    ]
+  },
+  sponsor: {
+    mobile: [
+      {
+        cat: 'Lead capture & follow-up', dot: '#BA7517',
+        features: [
+          { name: 'QR lead scan', why: 'Scan attendees at your booth', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Rep opens camera, scans an attendee\'s QR card, and the attendee\'s profile and intent tag are instantly added to the rep\'s lead pipeline with a timestamp.', why: 'At a busy booth, reps talk to 30+ people. The QR scan is the fastest way to capture a lead before the conversation ends.', how: 'On scan: create a sponsor_lead record with attendee_id, rep_id, scan_timestamp, event_id. Pre-populate with attendee profile data.', consideration: 'The scan must take under 2 seconds end-to-end. Any friction here and reps stop using it and go back to paper business cards.' } },
+          { name: 'Post-meeting notes', why: 'Add notes while memory is fresh', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'After a meeting, the rep gets a push notification with a "Add meeting note" deep link. Tap to add a short note and a status tag (Hot / Warm / Not interested).', why: 'Rep memory is freshest immediately after a meeting. A 30-second note on mobile converts to a qualified CRM lead later.', how: 'Note stored on the meeting record. Push notification fired 2 minutes after meeting end time. Pre-populated with attendee name and meeting time.', consideration: 'Limit note to 280 chars on mobile — reps will not write essays. The status tag is the most important field.' } },
+          { name: 'Incoming request notifications', why: 'Respond to leads immediately', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Push notification for every incoming attendee connection request. Tap to view the attendee\'s profile and intent tag, then accept or decline.', why: 'A hot lead who sends a request during a keynote will move on if they get no response for 2 hours. Mobile push is the only way to catch these.', how: 'Push on every request routed to the sponsor company. Rep tap → deep link to request detail → accept/decline actions inline.', consideration: 'Route the push to the most recently active rep, not a broadcast to all reps. Avoid notification flooding on large booths.' } },
+          { name: 'Walk-in meeting logger', why: 'Log impromptu booth visits', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Scan an attendee\'s QR code or search by name to instantly create a "walk-in meeting" record: who, when, what was discussed (brief note), and the outcome tag.', why: 'Most booth conversations are unscheduled. Without a logging tool, these meetings are invisible in the analytics.', how: 'Walk-in meeting created with type: "walk_in", attendee_id, rep_id, start_time (now), duration (select: 5/15/30min), note.', consideration: 'Walk-in meetings should appear in both the attendee\'s meeting history and the sponsor\'s lead analytics on equal footing with scheduled meetings.' } }
+        ]
+      },
+      {
+        cat: 'Booth management', dot: '#1D9E75',
+        features: [
+          { name: 'Rep availability toggle', why: 'Signal booth is staffed right now', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Each rep can toggle "Available at booth" on/off. The sponsor profile shows a live green indicator when at least one rep is available.', why: 'Attendees walking past a booth need to know if someone is there to talk. The live availability signal drives walk-in traffic.', how: 'Rep availability stored in Redis with auto-expiry (1 hour idle). Pushed to sponsor profile page via WebSocket.', consideration: 'Auto-set to "unavailable" after 30 minutes of inactivity. Require the rep to actively re-enable so stale availability does not mislead attendees.' } },
+          { name: 'Shared lead inbox', why: 'Team pick-up for busy booths', prio: 'nice-to-have', prioBg: '#F1EFE8', prioColor: '#444441',
+            detail: { what: 'A shared view where any rep on the team can see and act on unclaimed incoming messages and requests. Claim a lead to assign it to yourself.', why: 'Large sponsors have 5+ reps. Without a shared inbox, a message to the company (not a specific rep) goes unseen.', how: 'Unclaimed leads in a shared queue per sponsor_id. Claiming creates a sponsor_lead record with claiming_rep_id.', consideration: 'Show how long a lead has been unclaimed. Escalate (push all reps) if unclaimed for 30 minutes during active event hours.' } }
+        ]
+      }
+    ],
+    web: [
+      {
+        cat: 'Profile & setup', dot: '#BA7517',
+        features: [
+          { name: 'Sponsor profile builder', why: 'Rich media content creation', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Full sponsor profile setup: company logo upload, brand description (rich text), product/service listings with screenshots, and rep profile management.', why: 'Uploading logos, writing product descriptions, and adding multiple rep profiles is a 20-minute setup task that requires a desktop.', how: 'Rich text editor (TipTap or ProseMirror) for description. Product listings as a child table with image upload, title, description, tags.', consideration: 'Logo upload must accept SVG and PNG at min 400×400px. Auto-convert to WebP for the CDN. Enforce aspect ratio for consistency in map tiles.' } },
+          { name: 'Rep account management', why: 'Add, remove, configure team', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Sponsor admin can invite rep sub-accounts via email, set their role (admin/rep), assign them to specific product lines, and remove them after the event.', why: 'Managing a team of 5 reps, their access levels, and their meeting schedules requires a proper admin panel.', how: 'Rep invites as email tokens. Role-based access: admin sees all leads and analytics; rep sees own pipeline only.', consideration: 'Build an event-scoped permissions model — a rep\'s access expires when the event ends. Do not carry permissions to future events without re-invitation.' } },
+          { name: 'Visibility tier upgrade', why: 'Compare tiers and purchase', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'A tier comparison page showing standard vs premium vs enterprise benefits with live previews of each placement. One-click upgrade via Stripe.', why: 'Purchasing decisions — especially at £500+ — are desktop decisions. Sponsors need the full context before upgrading.', how: 'Stripe Checkout for payment. Tier upgrade takes effect immediately after payment confirmation via webhook.', consideration: 'Allow organizer-invoiced payment as an alternative to self-serve card payment — many enterprise sponsors pay via PO/invoice, not card.' } }
+        ]
+      },
+      {
+        cat: 'Lead analytics', dot: '#378ADD',
+        features: [
+          { name: 'Full lead analytics dashboard', why: 'Multi-metric data exploration', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Comprehensive sponsor analytics: profile views over time, connection requests by intent tag, message volume, meeting count, rep performance breakdown, and lead funnel conversion.', why: 'ROI analysis requires charts, comparisons, date filtering, and drill-downs — a multi-panel dashboard that only works on web.', how: 'Precomputed aggregate views per sponsor_id x event_id. Recharts for visualisation. Rep-level breakdown in a sortable table.', consideration: 'Sponsor analytics must never show data about other sponsors or raw attendee PII beyond name, role, and company — only engagement data.' } },
+          { name: 'Lead list with scoring', why: 'Prioritise follow-up list', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'A sortable table of all leads scored by engagement depth: meeting + positive note (hot) > meeting (warm) > messages (interested) > connection (cold). Filter by rep, intent tag, and score.', why: 'Post-event follow-up efficiency depends on prioritisation. The scored lead list is the output sponsors came to the platform for.', how: 'Lead score computed from interaction events at report generation time. Stored as enum on lead record.', consideration: 'Allow sponsors to override the AI score with a manual rating. Reps have context the system does not.' } },
+          { name: 'CSV & CRM export', why: 'Post-event pipeline workflow', prio: 'must-have', prioBg: '#FAEEDA', prioColor: '#633806',
+            detail: { what: 'Export all leads as a clean CSV: name, company, role, email (if consented), intent tag, interaction summary, rep notes, lead score. Zapier webhook for real-time CRM push.', why: 'Lead data ends up in Salesforce, HubSpot, or Pipedrive. The export is how sponsors derive long-term value from the event.', how: 'CSV generation as a background job. Email delivery of download link. Zapier webhook publishes on new lead events.', consideration: 'GDPR consent check on every exported record — filter out attendees who did not consent to sponsor data sharing. Log every export with timestamp and rep_id.' } },
+          { name: 'Benchmark report', why: 'Justify ROI vs industry', prio: 'nice-to-have', prioBg: '#F1EFE8', prioColor: '#444441',
+            detail: { what: 'Add a "how did you compare?" section to the sponsor report: your cost-per-meeting vs platform average, your acceptance rate vs average, your lead score distribution vs benchmark.', why: 'Sponsors need to justify their spend to a marketing director. "We generated 22 meetings at £18 cost-per-meeting vs £47 platform average" is a compelling ROI statement.', how: 'Anonymised benchmark stats computed from all historical events. Percentile rankings per metric. Shown as callout cards in the report.', consideration: 'Benchmarks are only valid for events of similar size and industry. Apply size and category filters before computing the comparison.' } }
+        ]
+      }
+    ]
+  }
+};
+
+let currentUser = 'attendee';
+
+function buildList(items, platform) {
+  return items.map(cat => `
+    <div class="cat-section">
+      <div class="cat-head">${cat.cat.toUpperCase()}</div>
+      ${cat.features.map((f, fi) => {
+        const id = `feat-${platform}-${cat.cat.replace(/\W+/g,'_')}-${fi}`;
+        const fJson = JSON.stringify(f).replace(/"/g, '&quot;');
+        return `<div class="feat-item" id="${id}" onclick="selectFeat(${fJson}, '${id}')">
+          <div class="feat-dot" style="background:${cat.dot};margin-top:5px"></div>
+          <div style="flex:1;min-width:0">
+            <div class="feat-name">${f.name}<span class="prio" style="background:${f.prioBg};color:${f.prioColor}">${f.prio}</span></div>
+            <div class="feat-why">${f.why}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function selectFeat(f, elemId) {
+  document.querySelectorAll('.feat-item').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById(elemId);
+  if (el) el.classList.add('selected');
+  const box = document.getElementById('detail-box');
+  document.getElementById('detail-head').textContent = f.name;
+  const d = f.detail;
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-card"><div class="detail-card-title">WHAT IT IS</div><div class="detail-card-body">${d.what}</div></div>
+    <div class="detail-card"><div class="detail-card-title">WHY IT BELONGS HERE</div><div class="detail-card-body">${d.why}</div></div>
+    <div class="detail-card"><div class="detail-card-title">HOW TO BUILD IT</div><div class="detail-card-body">${d.how}</div></div>
+    <div class="detail-card full"><div class="detail-card-title">KEY CONSIDERATION</div><div class="detail-card-body">${d.consideration}</div></div>`;
+  box.style.display = 'block';
+}
+
+function setUser(u, el) {
+  currentUser = u;
+  document.querySelectorAll('.utab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('detail-box').style.display = 'none';
+  render();
+}
+
+function render() {
+  const d = data[currentUser];
+  document.getElementById('mobile-list').innerHTML = buildList(d.mobile, 'mob');
+  document.getElementById('web-list').innerHTML = buildList(d.web, 'web');
+}
+
+render();
+</script>
+</body>
+</html>
